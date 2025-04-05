@@ -174,15 +174,17 @@ def send_slack(
     if footer is not None:
         if isinstance(footer, str):
             blocks_fix.append({
-                "type": "section",
-                "text": {
-                    "type": "plain_text",
+                "type": "context",
+                "elements": [{
+                    "type": "mrkdwn",
                     "text": footer,
-                    "emoji": True
-                }
+                }]
             })
         elif isinstance(footer, dict):
-            blocks_fix.append(footer)
+            blocks_fix.append({
+                "type": "context",
+                "elements": [footer]
+            })
         else:
             raise ValueError(f'invalid footer type: {type(footer)}')
     try:
@@ -243,12 +245,9 @@ slack_blocks.extend([{
     "alt_text":'ライブカメラ',
 } for (fid, furl) in uploaded_files])
 slack_header=None
-slack_footer={
-    "type": "section",
-    "text": {
-        "type": "mrkdwn",
-        "text": slack_footer,
-    }
+slack_footerz={
+    "type": "mrkdwn",
+    "text": slack_footer,
 }
 slack_text="ライブカメラ"
 slack_meta={
@@ -264,4 +263,4 @@ for fid, furl in uploaded_files:
             break
         time.sleep(waittime)
         # waittime=waittime*2
-post_ts=send_slack(slack_text, slack_blocks, slack_header, slack_footer, slack_meta_event_type_lvcm, slack_meta, 10)
+post_ts=send_slack(slack_text, slack_blocks, slack_header, slack_footerz, slack_meta_event_type_lvcm, slack_meta, 10)
