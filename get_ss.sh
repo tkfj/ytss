@@ -3,7 +3,7 @@ set -x
 
 . ./.env
 
-curl -s "https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${YOUTUBE_API_KEY}" > ${OUTPUT_PATH}/youtube_api_json.txt
+curl -s "https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&order=date&key=${YOUTUBE_API_KEY}" > ${OUTPUT_PATH}/youtube_api_json.txt
 cat ${OUTPUT_PATH}/youtube_api_json.txt | jq -r '.items[0].id.videoId' > ${OUTPUT_PATH}/youtube_channel_id.txt
 CHANNEL_ID=$(cat ${OUTPUT_PATH}/youtube_channel_id.txt)
 YOUTUBE_URL="https://www.youtube.com/watch?v=${CHANNEL_ID}"
