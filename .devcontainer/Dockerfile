@@ -37,13 +37,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 
 # Pythonパッケージインストール
-# RUN pip install --no-cache-dir \
-#     slack-sdk \
-#     python-dotenv \
-#     Pillow \
-#     requests \
-#     bs4 
-
+RUN pip install --no-cache-dir \
+    slack-sdk \
+    python-dotenv \
+    Pillow \
+    requests
 
 # 作業ディレクトリを設定
 WORKDIR /usr/src/app
