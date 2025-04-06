@@ -206,6 +206,9 @@ slack_cli = None
 slack_bot_user_id = None
 slack_ch_id = None
 
+out_path = os.environ['OUTPUT_PATH']
+
+
 slack_meta_event_type_lvcm = 'fjworks_livecamera'
 
 prepare_slack()
@@ -219,7 +222,7 @@ past_msgs_resp=slack_cli.conversations_history(
     oldest=slack_past_msgs_ts,
 )
 
-ssimg:Image = Image.open("/app/shared/snap.jpg")
+ssimg:Image = Image.open(f"{out_path}/snap.jpg")
 
 img_mimetype_out='image/jpg'
 upload_fname=f'livecam.jpg'

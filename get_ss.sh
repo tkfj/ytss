@@ -10,12 +10,27 @@ YOUTUBE_URL="https://www.youtube.com/watch?v=${CHANNEL_ID}"
 yt-dlp -g "${YOUTUBE_URL}" > ${OUTPUT_PATH}/streaming_url.txt
 STREAMING_URL=$(cat ${OUTPUT_PATH}/streaming_url.txt)
 
-ffmpeg -y \
-  -analyzeduration 10M \
-  -probesize 100M \
-  -i "${STREAMING_URL}" \
-  -frames:v 1 \
-  -q:v 2 \
-  "${OUTPUT_PATH}/snap.jpg"
+# 最新の m3u8 を curl で取得（キャッシュ無効化）
+curl -s -H "Cache-Control: no-cache" "$STREAMING_URL" -o ${OUTPUT_PATH}/live.m3u8
+
+# 最新の.tsセグメントURLを取得
+LATEST_TS=$(grep -oE 'https?://.*\.ts' ${OUTPUT_PATH}/live.m3u8 | tail -n 1)
+
+echo "最新セグメント: $LATEST_TS"
+
+# スクリーンショットを取得
+ffmpeg -y -sseof -1.0 -i "$LATEST_TS" -frames:v 1 -q:v 2 "${OUTPUT_PATH}/snap.jpg"
+
+# ffmpeg -y \
+#   -fflags \
+#   nobuffer \
+#   -flags \
+#   -low-delay \
+#   -analyzeduration 0 \
+#   -probesize 32 \
+#   -i "${SEGMENT_URL}" \
+#   -frames:v 1 \
+#   -q:v 2 \
+#   "${OUTPUT_PATH}/snap.jpg"
 
 python src/ytss.py
