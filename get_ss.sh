@@ -5,9 +5,6 @@ set -x
 
 VIDEOIDFILE="./youtube_video_id.txt"
 
-
-
-
 VIDEO_ID=""
 LAST_VIDEO_ID=""
 
@@ -19,8 +16,9 @@ fi
 
 # 2. そのIDが現在もライブ中か確認 消費クオータ=1
 if [[ -n "${LAST_VIDEO_ID}" ]]; then
-  IS_LIVE=$(curl -s "https://www.googleapis.com/youtube/v3/videos?part=snippet,liveStreamingDetails&id=${LAST_VIDEO_ID}&key=${API_KEY}" \
-    | jq -r '.items[0].snippet.liveBroadcastContent // "none"')
+  RSP_API_VIDEOS=$(curl -s "https://www.googleapis.com/youtube/v3/videos?part=snippet,liveStreamingDetails&id=${LAST_VIDEO_ID}&key=${YOUTUBE_API_KEY}")
+  echo "${RSP_API_VIDEOS}" > "${OUTPUT_PATH}/resp_api_videos.txt"
+  IS_LIVE=$(cat "${OUTPUT_PATH}/resp_api_videos.txt" | jq -r '.items[0].snippet.liveBroadcastContent // "none"')
 
   if [[ "$IS_LIVE" == "live" ]]; then
     VIDEO_ID="${LAST_VIDEO_ID}"
@@ -32,8 +30,9 @@ fi
 
 # 3. それでもVIDEO_IDが空なら search APIで最新ライブを検索 消費クオータ=100
 if [[ -z "${VIDEO_ID}" ]]; then
-  VIDEO_ID=$(curl -s "https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&order=date&key=${API_KEY}" \
-    | jq -r '.items[0].id.videoId // empty')
+  RSP_API_SEARCH=$(curl -s "https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&order=date&key=${YOUTUBE_API_KEY}")
+  echo "${RSP_API_SEARCH}" > "${OUTPUT_PATH}/resp_api_search.txt"
+  VIDEO_ID=$(cat  "${OUTPUT_PATH}/resp_api_search.txt" | jq -r '.items[0].id.videoId // empty')
 
   if [[ -n "${VIDEO_ID}" ]]; then
     echo "[INFO] 新しいライブ配信を検出: ${VIDEO_ID}"
