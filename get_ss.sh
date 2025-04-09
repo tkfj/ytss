@@ -8,6 +8,21 @@ VIDEOIDFILE="./youtube_video_id.txt"
 VIDEO_ID=""
 LAST_VIDEO_ID=""
 
+RESERVATIONFILE="./reservation_time.txt"
+
+# 予約ファイルが存在するか確認
+if [ -f "${RESERVATIONFILE}" ]; then
+    echo "[INFO] 予約ファイルあり。"
+    current_epoch=$(date +%s)
+    reserved_epoch=$(cat "${RESERVATIONFILE}")
+
+    if [ "${current_epoch}" -lt "${reserved_epoch}" ]; then
+        reserved_jst=$(TZ=Asia/Tokyo date -d "@${reserved_epoch}" +"%Y-%m-%d %H:%M:%S")
+        echo "[INFO] 予約時刻(JST): ${reserved_jst} まではスキップします。"
+        exit 1
+    fi
+fi
+
 # 1. 前回保存された ID を読み込む
 if [[ -f "${VIDEOIDFILE}" ]]; then
   LAST_VIDEO_ID=$(cat "${VIDEOIDFILE}")
@@ -38,6 +53,15 @@ if [[ -z "${VIDEO_ID}" ]]; then
     echo "[INFO] 新しいライブ配信を検出: ${VIDEO_ID}"
   else
     echo "[ERROR] ライブ配信が見つかりませんでした。" >&2
+
+    # 30分後のJST時刻を取得（日本時間）
+    jst_time=$(TZ=Asia/Tokyo date -d "30 minutes" +"%Y-%m-%d %H:%M:%S")
+    # 30分後のUTCエポック秒を取得
+    utc_epoch=$(date -d "30 minutes" +%s)
+    # ファイルにUTCエポックを保存
+    echo "$utc_epoch" > "${RESERVATIONFILE}"
+    # JSTの予約時刻を表示
+    echo "[INFO] 次回の実行予約時刻(JST): $jst_time"
     exit 1
   fi
 fi
@@ -65,3 +89,9 @@ echo "最新セグメント: $LATEST_TS"
 ffmpeg -y -sseof -1.0 -i "$LATEST_TS" -frames:v 1 -q:v 2 "${OUTPUT_PATH}/snap.jpg"
 
 python src/ytss.py
+
+# 成功したら予約ファイルを削除
+if [ -f "$RESERVATION_FILE" ]; then
+    rm "$RESERVATION_FILE"
+    echo "[INFO] 予約ファイルを削除しました。"
+fi
