@@ -56,8 +56,8 @@ if [[ -z "${VIDEO_ID}" ]]; then
 
     # 30分後のJST時刻を取得（日本時間）
     jst_time=$(TZ=Asia/Tokyo date -d "30 minutes" +"%Y-%m-%d %H:%M:%S")
-    # 30分後のUTCエポック秒を取得
-    utc_epoch=$(date -d "30 minutes" +%s)
+    # 30分後のUTCエポック秒を取得 → 起動時刻と処理時間の揺らぎを考慮して28分
+    utc_epoch=$(date -d "28 minutes" +%s)
     # ファイルにUTCエポックを保存
     echo "$utc_epoch" > "${RESERVATIONFILE}"
     # JSTの予約時刻を表示
