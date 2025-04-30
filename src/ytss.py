@@ -1,5 +1,6 @@
 import os
 import json
+import yaml
 
 from typing import List, Tuple, Dict, Set, Any
 from pprint import pprint
@@ -201,15 +202,16 @@ dotenv.load_dotenv()
 
 slack_token = os.environ['SLACK_TOKEN']
 slack_ch_nm = os.environ['SLACK_CH_NM']
-slack_footer = os.environ['SLACK_FOOTER']
 slack_cli = None
 slack_bot_user_id = None
 slack_ch_id = None
 
 out_path = os.environ['OUTPUT_PATH']
 
-
 slack_meta_event_type_lvcm = 'fjworks_livecamera'
+
+with open("./control.yml",'rb') as yamlfile: #非ASCIIを含むのでバイナリ
+    config=yaml.safe_load(yamlfile)
 
 prepare_slack()
 slack_past_msgs_ts=f'{datetime.datetime.now(datetime.timezone.utc).timestamp() - 24 * 60 * 60: .6f}'
@@ -222,7 +224,12 @@ past_msgs_resp=slack_cli.conversations_history(
     oldest=slack_past_msgs_ts,
 )
 
-ssimg:Image = Image.open(f"{out_path}/snap.jpg")
+ssimg:Image = Image.open(config['control']['capture_file'])
+slack_footer = (
+    'source: Youtubeチャンネル '
+    f'<{config["control"]["channel_url"]} |{config["control"]["channel_name"]}>'
+    f'{config["control"]["video_title"]}'
+)
 
 img_mimetype_out='image/jpg'
 upload_fname=f'livecam.jpg'

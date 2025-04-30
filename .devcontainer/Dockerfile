@@ -41,6 +41,7 @@ RUN pip install --no-cache-dir \
     slack-sdk \
     python-dotenv \
     Pillow \
+    PyYAML \
     requests
 
 # 作業ディレクトリを設定

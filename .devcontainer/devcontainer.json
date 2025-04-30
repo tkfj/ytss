@@ -10,7 +10,7 @@
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "app",
 	"workspaceFolder": "/usr/src/app",
-	"remoteUser":"devuser",
+    "remoteUser":"devuser",
 	"updateRemoteUserUID":true,
 	"overrideCommand": true,
 
