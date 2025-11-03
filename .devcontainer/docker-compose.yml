@@ -5,18 +5,23 @@ services:
     build:
       context: ..
       dockerfile: Dockerfile
-      args:
-        USER_UID: 1000
-
     volumes:
       - type: bind
         source: ..
         target: /usr/src/app
         consistency: cached
-      - ../config:/config
-      - ../output:/output
-      - ../export:/export
-      - ~/.ssh:/home/appuser/.ssh
+      - type: bind
+        source: ../config
+        target: /config
+      - type: bind
+        source: ../output
+        target: /output
+      - type: bind
+        source: ../export
+        target: /export
+      - type: bind
+        source: ~/.ssh
+        target: /home/appuser/.ssh
     environment:
       PYTHONPATH: '/usr/src/app/src'
       CONFIG_PATH: '/config/config.yml'
