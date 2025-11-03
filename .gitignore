@@ -1,3 +1,6 @@
 .DS_Store
 .env
 *.code-workspace
+__pycache__/
+output/
+export/

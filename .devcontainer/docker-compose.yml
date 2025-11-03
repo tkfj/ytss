@@ -1,31 +1,24 @@
-version: '3.8'
-
 services:
   app:
+    # ffmpeg向けに明示する
     platform: linux/amd64
     build:
       context: ..
-      dockerfile: .devcontainer/Dockerfile
+      dockerfile: Dockerfile
       args:
         USER_UID: 1000
 
     volumes:
-      # ソースコードをコンテナ内へマウント（:cached や :delegated を付けることでパフォーマンス向上する場合あり）
       - type: bind
         source: ..
         target: /usr/src/app
         consistency: cached
-      - shared-data:/app/shared
-    user: "devuser"
-    depends_on:
-      init-volume:
-        condition: service_completed_successfully
-  init-volume:
-    image: alpine
-    command: ['sh', '-c', 'chmod 777 /shared']
-    volumes:
-      - shared-data:/shared
-    entrypoint: ''
-volumes:
-  shared-data:
-    name: shared-data
+      - ../config:/config
+      - ../output:/output
+      - ../export:/export
+    environment:
+      PYTHONPATH: '/usr/src/app/src'
+      CONFIG_PATH: '/config/config.yml'
+      OUTPUT_PATH: '/output'
+    env_file:
+      - .env

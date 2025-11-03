@@ -6,26 +6,27 @@ import json
 import tempfile
 import yaml
 from datetime import datetime, timedelta, timezone
-# from pathlib import Path
-import dotenv
+from pathlib import Path
 from contextlib import suppress
 import traceback
 
 from pprint import pprint
 
-# 環境変数を読み込み
-dotenv.load_dotenv()
-
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 OUTPUT_PATH = os.getenv("OUTPUT_PATH")
+CONFIG_PATH = os.getenv("CONFIG_PATH","./config/config.yml")
+
+YOUTUBE_API_BASE = "https://www.googleapis.com/youtube/v3"
 
 def get_current_epoch():
     return int(time.time())
 
 def fetch_channel_info(channel_id):
     url = (
-        f"https://www.googleapis.com/youtube/v3/channels"
-        f"?part=snippet&id={channel_id}&key={YOUTUBE_API_KEY}"
+        f"{YOUTUBE_API_BASE}/channels"
+        f"?part=snippet"
+        f"&id={channel_id}"
+        f"&key={YOUTUBE_API_KEY}"
     )
     resp = requests.get(url).json()
     with open(f"{OUTPUT_PATH}/resp_api_videos.txt", "w") as f:
@@ -34,8 +35,10 @@ def fetch_channel_info(channel_id):
 
 def fetch_video_status(video_id):
     url = (
-        f"https://www.googleapis.com/youtube/v3/videos"
-        f"?part=snippet,liveStreamingDetails&id={video_id}&key={YOUTUBE_API_KEY}"
+        f"{YOUTUBE_API_BASE}/videos"
+        f"?part=snippet,liveStreamingDetails"
+        f"&id={video_id}"
+        f"&key={YOUTUBE_API_KEY}"
     )
     resp = requests.get(url).json()
     with open(f"{OUTPUT_PATH}/resp_api_videos.txt", "w") as f:
@@ -44,8 +47,13 @@ def fetch_video_status(video_id):
 
 def search_latest_live_video(chid:str, keywords=[]):
     url = (
-        f"https://www.googleapis.com/youtube/v3/search"
-        f"?part=snippet&channelId={chid}&eventType=live&type=video&order=date&key={YOUTUBE_API_KEY}"
+        f"{YOUTUBE_API_BASE}/search"
+        f"?part=snippet"
+        f"&channelId={chid}"
+        "&eventType=live"
+        "&type=video"
+        "&order=date"
+        f"&key={YOUTUBE_API_KEY}"
     )
     if keywords is not None and len(keywords)>0:
         url = f"{url}&q={keywords[0]}"
@@ -85,7 +93,7 @@ def capture_screenshot(ts_url):
     return tfname
 
 def main():
-    with open("./config.yml",'rb') as yamlfile: #非ASCIIを含むのでバイナリ
+    with open(CONFIG_PATH,'rb') as yamlfile: #非ASCIIを含むのでバイナリ
         config_in=yaml.safe_load(yamlfile)
 
     channelids=[_x['id'] for _x in config_in.get("channels",[])]
@@ -186,7 +194,8 @@ def main():
             os.remove(control["capture_file"])
     control["capture_file"] = cap_filename
 
-    with open("./control.yml",'wb') as yamlfile: #非ASCIIを含むのでバイナリ
+    ctrlpath = Path(OUTPUT_PATH).resolve().joinpath("control.yml")
+    with open(ctrlpath,'wb') as yamlfile: #非ASCIIを含むのでバイナリ
         yaml.safe_dump(config_out, yamlfile, encoding='utf-8', allow_unicode=True)
 
 if __name__ == "__main__":
