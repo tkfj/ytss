@@ -1,4 +1,4 @@
-FROM python:3.13-slim-bullseye as base
+FROM python:3.13-slim-bullseye
 # bookwormだとffmpegがsegmentエラーでcore吐いて落ちる
 
 ARG USERNAME=appuser
@@ -15,6 +15,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         sudo \
         build-essential \
+        openssh-client \
         git ca-certificates gnupg \
     && rm -rf /var/lib/apt/lists/*
 
