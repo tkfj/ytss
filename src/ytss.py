@@ -114,8 +114,11 @@ def main():
     with open(CONFIG_PATH,'rb') as yamlfile: #非ASCIIを含むのでバイナリ
         config_in1={'definitions':yaml.safe_load(yamlfile)}
     ctrlpath = Path(OUTPUT_PATH).resolve().joinpath("control.yml")
-    with open(ctrlpath,'rb') as yamlfile: #非ASCIIを含むのでバイナリ
-        config_in2=yaml.safe_load(yamlfile)
+    try:
+        with open(ctrlpath,'rb') as yamlfile: #非ASCIIを含むのでバイナリ
+            config_in2=yaml.safe_load(yamlfile)
+    except FileNotFoundError:
+        config_in2 = {}
     config_in = config_in1 | config_in2
 
     channeldefs=config_in.get("definitions",{}).get("channels",[])
@@ -128,7 +131,7 @@ def main():
     config_out['channels'] = channels
     config_out['control'] = control
     for i, chid in enumerate(channelids):
-        ch = channels.get(chid)
+        ch = channels.get(chid,{})
         # 予約チェック
         reserved_epoch = ch.get('reservation')
         if reserved_epoch:
