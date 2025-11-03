@@ -16,6 +16,7 @@ services:
       - ../config:/config
       - ../output:/output
       - ../export:/export
+      - ~/.ssh:/home/appuser/.ssh
     environment:
       PYTHONPATH: '/usr/src/app/src'
       CONFIG_PATH: '/config/config.yml'
