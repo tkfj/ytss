@@ -13,6 +13,7 @@ services:
       - type: bind
         source: ../config
         target: /config
+        read_only: true
       - type: bind
         source: ../output
         target: /output
@@ -22,6 +23,7 @@ services:
       - type: bind
         source: ~/.ssh
         target: /home/appuser/.ssh
+        read_only: true
     environment:
       PYTHONPATH: '/usr/src/app/src'
       CONFIG_PATH: '/config/config.yml'
